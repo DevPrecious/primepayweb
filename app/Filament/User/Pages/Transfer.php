@@ -144,7 +144,7 @@ class Transfer extends Page
             'source' => 'balance',
             'reference' => $ref,
             'recipient' => $this->recipientCode,
-            'amount' => $this->amount,
+            'amount' => $this->amount * 100,
         ]);
 
         $responseData = $response->json();
@@ -180,6 +180,8 @@ class Transfer extends Page
                 'amount' => $this->amount,
                 'status' => 'pending',
             ]);
+            //clear the form
+            $this->reset(['accountName', 'accountNumber', 'bank', 'amount', 'recipientCode']);
         } else {
             Notification::make()
                 ->title('Failed to create transfer')
