@@ -20,7 +20,7 @@ class VirtualNumbers extends Page implements HasTable
 {
     use InteractsWithTable;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-calculator';
 
     protected static string $view = 'filament.user.pages.virtual-numbers';
 
