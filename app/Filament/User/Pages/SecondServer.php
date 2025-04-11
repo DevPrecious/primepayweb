@@ -4,6 +4,7 @@ namespace App\Filament\User\Pages;
 
 use App\Models\RecentActivity;
 use App\Models\Transaction;
+use App\Models\Wallet;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -102,6 +103,16 @@ class SecondServer extends Page
     public function purchase()
     {
         try {
+            $balance = Wallett::where('user_id', Auth::id())->first();
+            if ($balance->balance < $this->amount) {
+                Notification::make()
+                    ->title('Insufficient balance')
+                    ->body('You do not have enough balance to make this purchase.')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
+                    ->send();
+                return;
+            }
             $data = $this->form->getState();
             $selectedService = $this->data['services'][$data['selectedService']] ?? null;
 

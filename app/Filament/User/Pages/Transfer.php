@@ -4,6 +4,7 @@ namespace App\Filament\User\Pages;
 
 use App\Models\RecentActivity;
 use App\Models\Transaction;
+use App\Models\Wallet;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -43,9 +44,7 @@ class Transfer extends Page
 
         if ($responseData['status'] && isset($responseData['data'])) {
             $this->data['banks'] = collect($responseData['data'])
-                ->mapWithKeys(function ($bank) {
-                    return [$bank['code'] => $bank['name']];
-                })
+                ->pluck('name', 'code')
                 ->toArray();
         }
     }
@@ -135,6 +134,7 @@ class Transfer extends Page
 
     public function createTransfer()
     {
+        // dd($this->data['banks'][$this->bank],);
         $ref = 'PrimePay_' . time() . '_' . Str::random(16);
 
         $response = Http::withHeaders([
@@ -178,7 +178,10 @@ class Transfer extends Page
                 'type' => 'transfer',
                 'reference' => $ref,
                 'amount' => $this->amount,
-                'status' => 'pending',
+                'status' => 'success',
+                'account_number' => $this->accountNumber,
+                'account_name' => $this->accountName,
+                'account_bank'  => $this->data['banks'][$this->bank],
             ]);
             //clear the form
             $this->reset(['accountName', 'accountNumber', 'bank', 'amount', 'recipientCode']);
@@ -205,6 +208,17 @@ class Transfer extends Page
     public function transfer()
     {
         try {
+            // get user balance
+            $balance = Wallet::where('user_id', Auth::id())->first();
+            if ($balance->balance < $this->amount) {
+                Notification::make()
+                    ->title('Insufficient balance')
+                    ->body('You do not have enough balance to make this transfer')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
+                    ->send();
+                return;
+            }
             // First create transfer recipient
             $this->createTransferRecipient();
 

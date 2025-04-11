@@ -32,6 +32,7 @@ class LatestTransactions extends BaseWidget
                     ->searchable()
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'success' => 'success',
+                        'pending' => 'Pending',
                         'failed' => 'Failed',
                     }),
                 Tables\Columns\TextColumn::make('amount')

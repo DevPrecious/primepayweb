@@ -4,6 +4,7 @@ namespace App\Filament\User\Pages;
 
 use App\Models\RecentActivity;
 use App\Models\Transaction;
+use App\Models\Wallet;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -235,6 +236,16 @@ class TvSubscription extends Page implements HasForms
         $amount = (int) $data['amount'];
 
         try {
+            $balance = Wallet::where('user_id', Auth::id())->first();
+            if ($balance->balance < $this->amount) {
+                Notification::make()
+                    ->title('Insufficient balance')
+                    ->body('You do not have enough balance to make this purchase.')
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
+                    ->send();
+                return;
+            }
             $response = Http::withHeaders([
                 'Authorization' => 'Token ' . env('DATA_STORE_TOKEN'),
                 'Content-Type' => 'application/json',

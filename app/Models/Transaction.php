@@ -20,6 +20,9 @@ class Transaction extends Model
         'cableplan',
         'mdn',
         'service',
+        'account_number',
+        'account_name',
+        'account_bank',
     ];
 
     public function user()
